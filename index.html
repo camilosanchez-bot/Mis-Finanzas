@@ -3,845 +3,388 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Planificador de retiro Money-Flow - Método Claudia Uribe">
-    <meta name="theme-color" content="#378ADD">
     <title>💰 Money-Flow Retirement Planner</title>
-    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/react.production.min.js"></script>
-    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/react-dom.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.10.3/recharts.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html, body, #root {
-            width: 100%;
-            height: 100%;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
-            background: #f5f5f5;
-            color: #333;
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        .setup-container {
-            max-width: 600px;
-        }
-
-        .title-main {
-            font-size: 28px;
-            font-weight: 500;
-            margin-bottom: 2rem;
-            color: #0b0b0b;
-        }
-
-        .header-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: inherit;
-        }
-
-        .btn-primary {
-            background: #378ADD;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #2871c4;
-        }
-
-        .btn-secondary {
-            background: transparent;
-            border: 0.5px solid #ddd;
-            color: #333;
-        }
-
-        .btn-back {
-            background: transparent;
-            border: 0.5px solid #ddd;
-            color: #333;
-            padding: 0.5rem 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-group label {
-            font-size: 14px;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            color: #0b0b0b;
-        }
-
-        .form-group input {
-            padding: 0.75rem;
-            border: 0.5px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-            font-family: inherit;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #378ADD;
-            box-shadow: 0 0 0 2px rgba(55, 138, 221, 0.1);
-        }
-
-        .hint {
-            font-size: 12px;
-            color: #666;
-            margin-top: 0.5rem;
-        }
-
-        .card {
-            background: white;
-            border: 0.5px solid #e0e0e0;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .card h2 {
-            font-size: 18px;
-            font-weight: 500;
-            margin-bottom: 1rem;
-            color: #0b0b0b;
-        }
-
-        .card h3 {
-            font-size: 16px;
-            font-weight: 500;
-            margin-bottom: 1rem;
-            color: #0b0b0b;
-        }
-
-        .golden-card {
-            background: linear-gradient(135deg, #D4A574 0%, #A67C52 100%);
-            border-radius: 12px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            color: white;
-        }
-
-        .golden-label {
-            font-size: 12px;
-            font-weight: 500;
-            opacity: 0.9;
-            margin-bottom: 0.5rem;
-        }
-
-        .golden-number {
-            font-size: 48px;
-            font-weight: 500;
-            margin: 0;
-        }
-
-        .golden-description {
-            font-size: 12px;
-            opacity: 0.85;
-            margin-top: 0.5rem;
-        }
-
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 12px;
-            margin-bottom: 2rem;
-        }
-
-        .metric-card {
-            background: white;
-            padding: 1rem;
-            border-radius: 8px;
-            border: 0.5px solid #e0e0e0;
-        }
-
-        .metric-label {
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 0.5rem;
-        }
-
-        .metric-value {
-            font-size: 24px;
-            font-weight: 500;
-            color: #0b0b0b;
-        }
-
-        .nav-buttons {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 12px;
-            margin-bottom: 2rem;
-        }
-
-        .btn-nav {
-            background: #f9f9f9;
-            border: 0.5px solid #ddd;
-            color: #333;
-            width: 100%;
-            padding: 1rem;
-        }
-
-        .btn-nav:hover {
-            background: #f0f0f0;
-        }
-
-        .palanca-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 12px;
-            margin-bottom: 1.5rem;
-        }
-
-        .palanca-item {
-            background: #f9f9f9;
-            padding: 1rem;
-            border-radius: 8px;
-            border: 0.5px solid #e0e0e0;
-        }
-
-        .palanca-item .value.accent {
-            color: #378ADD;
-        }
-
-        .investment-card {
-            padding: 1.5rem;
-            border-radius: 8px;
-            color: white;
-        }
-
-        .investment-card.brick {
-            background: linear-gradient(135deg, #B8860B 0%, #8B6914 100%);
-        }
-
-        .investment-card.house {
-            background: linear-gradient(135deg, #4169E1 0%, #1E90FF 100%);
-        }
-
-        .investment-card.terrace {
-            background: linear-gradient(135deg, #FF6347 0%, #DC143C 100%);
-        }
-
-        .investment-card.pool {
-            background: linear-gradient(135deg, #9932CC 0%, #8B008B 100%);
-        }
-
-        .vortex-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 12px;
-        }
-
-        .vortex-card {
-            padding: 1.5rem;
-            border-radius: 8px;
-            color: white;
-        }
-
-        .vortex-card.emergency {
-            background: linear-gradient(135deg, #E74C3C 0%, #C0392B 100%);
-        }
-
-        .vortex-card.oxygen {
-            background: linear-gradient(135deg, #F39C12 0%, #D68910 100%);
-        }
-
-        .vortex-card.retirement {
-            background: linear-gradient(135deg, #27AE60 0%, #1E8449 100%);
-        }
-
-        .info-box {
-            background: #E6F1FB;
-            border: 0.5px solid #85B7EB;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 2rem;
-            font-size: 13px;
-            color: #185FA5;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 1.5rem;
-        }
-
-        .form-row input {
-            padding: 0.75rem;
-            border: 0.5px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-
-        .contributions-list {
-            margin-top: 2rem;
-        }
-
-        .contributions-list h4 {
-            font-size: 14px;
-            font-weight: 500;
-            margin-bottom: 1rem;
-            color: #0b0b0b;
-        }
-
-        .list {
-            max-height: 300px;
-            overflow-y: auto;
-            border: 0.5px solid #e0e0e0;
-            border-radius: 6px;
-            margin-bottom: 1rem;
-        }
-
-        .list-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.75rem;
-            border-bottom: 0.5px solid #e0e0e0;
-            font-size: 13px;
-        }
-
-        .list-item:last-child {
-            border-bottom: none;
-        }
-
-        .total-box {
-            padding: 1rem;
-            background: #E6F1FB;
-            border-radius: 6px;
-            text-align: center;
-            font-size: 13px;
-            font-weight: 500;
-            color: #185FA5;
-        }
-
-        .chart-container {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            border: 0.5px solid #e0e0e0;
-            margin-bottom: 2rem;
-        }
-
-        .chart-container h3 {
-            font-size: 16px;
-            font-weight: 500;
-            margin-bottom: 1rem;
-            color: #0b0b0b;
-        }
-
-        .analysis-box {
-            background: #EAF3DE;
-            border: 0.5px solid #97C459;
-            border-radius: 12px;
-            padding: 1.5rem;
-            border-left: 4px solid #639922;
-        }
-
-        .analysis-box h3 {
-            font-size: 16px;
-            font-weight: 500;
-            margin-bottom: 1rem;
-            color: #0b0b0b;
-        }
-
-        .analysis-points {
-            display: grid;
-            gap: 0.75rem;
-        }
-
-        .analysis-points p {
-            font-size: 13px;
-            color: #0b0b0b;
-            line-height: 1.6;
-            margin: 0;
-        }
-
-        .milestones-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 12px;
-        }
-
-        .milestone {
-            background: #f9f9f9;
-            padding: 1rem;
-            border-radius: 8px;
-            border: 0.5px solid #e0e0e0;
-        }
-
-        .milestone .value.accent {
-            color: #378ADD;
-        }
-
-        .milestone .value.success {
-            color: #27AE60;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .btn-toggle {
-            padding: 0.5rem 1rem;
-            background: transparent;
-            border: 0.5px solid #ddd;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 500;
-            text-transform: capitalize;
-        }
-
-        .btn-toggle.active {
-            background: #378ADD;
-            color: white;
-            border-color: #378ADD;
-        }
-
-        .profile-selector {
-            margin-bottom: 1.5rem;
-        }
-
-        .profile-selector label {
-            display: block;
-            font-size: 13px;
-            font-weight: 500;
-            margin-bottom: 0.75rem;
-            color: #0b0b0b;
-        }
-
-        .card-description {
-            font-size: 13px;
-            color: #666;
-            margin-top: 1rem;
-            line-height: 1.6;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-            .golden-number {
-                font-size: 36px;
-            }
-            .header-nav {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #333; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 2rem; }
+        h1 { font-size: 28px; font-weight: 600; margin-bottom: 2rem; color: #0b0b0b; }
+        .btn { padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; transition: 0.2s; }
+        .btn-primary { background: #378ADD; color: white; }
+        .btn-primary:hover { background: #2871c4; }
+        .btn-secondary { background: transparent; border: 1px solid #ddd; color: #333; }
+        .btn-back { background: transparent; border: 1px solid #ddd; padding: 0.5rem 1rem; margin-bottom: 1.5rem; cursor: pointer; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-weight: 600; margin-bottom: 0.5rem; font-size: 13px; }
+        .form-group input { padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; font-family: inherit; }
+        .card { background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+        .golden-card { background: linear-gradient(135deg, #D4A574 0%, #A67C52 100%); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; color: white; }
+        .golden-number { font-size: 48px; font-weight: 600; margin: 0; }
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+        .metric-card { background: white; padding: 1rem; border-radius: 8px; border: 1px solid #e0e0e0; }
+        .metric-value { font-size: 24px; font-weight: 600; color: #0b0b0b; }
+        .nav-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+        .btn-nav { background: #f9f9f9; border: 1px solid #ddd; color: #333; padding: 1rem; cursor: pointer; }
+        .btn-nav:hover { background: #f0f0f0; }
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+        .item-box { background: #f9f9f9; padding: 1rem; border-radius: 8px; border: 1px solid #e0e0e0; }
+        .item-box .value { font-size: 20px; font-weight: 600; color: #0b0b0b; }
+        .item-box .accent { color: #378ADD; }
+        .vortex-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; }
+        .vortex-card { padding: 1.5rem; border-radius: 8px; color: white; }
+        .vortex-emergency { background: linear-gradient(135deg, #E74C3C 0%, #C0392B 100%); }
+        .vortex-oxygen { background: linear-gradient(135deg, #F39C12 0%, #D68910 100%); }
+        .vortex-retirement { background: linear-gradient(135deg, #27AE60 0%, #1E8449 100%); }
+        .info-box { background: #E6F1FB; border: 1px solid #85B7EB; border-radius: 8px; padding: 1rem; margin-bottom: 2rem; font-size: 13px; color: #185FA5; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 1.5rem; }
+        .form-row input { padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px; }
+        .list { max-height: 300px; overflow-y: auto; border: 1px solid #e0e0e0; border-radius: 6px; margin-bottom: 1rem; }
+        .list-item { display: flex; justify-content: space-between; padding: 0.75rem; border-bottom: 1px solid #e0e0e0; font-size: 13px; }
+        .total-box { padding: 1rem; background: #E6F1FB; border-radius: 6px; text-align: center; font-size: 13px; font-weight: 600; color: #185FA5; }
+        .analysis-box { background: #EAF3DE; border: 1px solid #97C459; border-radius: 12px; padding: 1.5rem; border-left: 4px solid #639922; }
+        .analysis-box p { font-size: 13px; margin-bottom: 0.75rem; }
+        .milestones-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+        .milestone { background: #f9f9f9; padding: 1rem; border-radius: 8px; border: 1px solid #e0e0e0; }
+        .milestone .value { font-size: 18px; font-weight: 600; }
+        .milestone .value.accent { color: #378ADD; }
+        .milestone .value.success { color: #27AE60; }
+        .button-group { display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn-toggle { padding: 0.5rem 1rem; background: transparent; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 500; }
+        .btn-toggle.active { background: #378ADD; color: white; border-color: #378ADD; }
+        @media (max-width: 768px) { .container { padding: 1rem; } .form-row { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
-    <div id="root"></div>
+    <div id="app"></div>
     <script>
-        const { useState, useEffect } = window.React;
-        const React = window.React;
-        const ReactDOM = window.ReactDOM;
+        class MoneyFlowApp {
+            constructor() {
+                this.currentStep = 'setup';
+                this.investmentProfile = 'moderado';
+                this.monthlyContributions = [];
+                this.formData = {
+                    name: '',
+                    monthlyExpense: 3500000,
+                    yearsToRetirement: 15,
+                    initialCapital: 5000000,
+                    expectedReturn: 8,
+                    inflation: 4,
+                    currentPatrimony: 0
+                };
+                this.loadData();
+                this.render();
+            }
 
-        function MoneyFlowApp() {
-            const [currentStep, setCurrentStep] = useState('setup');
-            const [profile, setProfile] = useState(null);
-            const [investmentProfile, setInvestmentProfile] = useState('moderado');
-            const [monthlyContributions, setMonthlyContributions] = useState([]);
-            
-            const [formData, setFormData] = useState({
-                name: '',
-                monthlyExpense: 3500000,
-                yearsToRetirement: 15,
-                initialCapital: 5000000,
-                expectedReturn: 8,
-                inflation: 4,
-                currentPatrimony: 0
-            });
-
-            useEffect(() => {
+            loadData() {
                 const saved = localStorage.getItem('moneyflow_profile');
                 if (saved) {
-                    const data = JSON.parse(saved);
-                    setProfile(data);
-                    setFormData(data);
-                    setCurrentStep('dashboard');
+                    this.formData = JSON.parse(saved);
+                    this.currentStep = 'dashboard';
                 }
-            }, []);
+            }
 
-            const saveProfile = () => {
-                localStorage.setItem('moneyflow_profile', JSON.stringify(formData));
-                setProfile(formData);
-                setCurrentStep('dashboard');
-            };
+            saveData() {
+                localStorage.setItem('moneyflow_profile', JSON.stringify(this.formData));
+                this.currentStep = 'dashboard';
+                this.render();
+            }
 
-            const calculateGoldenNumber = () => {
-                const monthlyExpense = formData.monthlyExpense;
-                const yearsToRetirement = formData.yearsToRetirement;
-                const expectedReturn = formData.expectedReturn / 100;
-                const inflation = formData.inflation / 100;
+            calculateGoldenNumber() {
+                const m = this.formData.monthlyExpense;
+                const y = this.formData.yearsToRetirement;
+                const r = this.formData.expectedReturn / 100;
+                const i = this.formData.inflation / 100;
                 
-                const monthlyRetirementExpense = monthlyExpense * Math.pow(1 + inflation, yearsToRetirement);
-                const totalNeededWithInflation = monthlyRetirementExpense * 12 * 30;
-                const discountFactor = Math.pow(1 + expectedReturn, yearsToRetirement);
+                const monthlyRetirement = m * Math.pow(1 + i, y);
+                const totalNeeded = monthlyRetirement * 12 * 30;
+                const discountFactor = Math.pow(1 + r, y);
                 
-                return Math.round(totalNeededWithInflation / discountFactor);
-            };
+                return Math.round(totalNeeded / discountFactor);
+            }
 
-            const calculateProjection = () => {
-                let balance = formData.initialCapital + (formData.currentPatrimony || 0);
+            calculateProjection() {
+                let balance = this.formData.initialCapital + this.formData.currentPatrimony;
                 const data = [];
-                const monthlyReturn = formData.expectedReturn / 100 / 12;
-                const monthlyInflation = formData.inflation / 100 / 12;
-                let monthlyContrib = formData.monthlyExpense;
+                const mr = this.formData.expectedReturn / 100 / 12;
+                const mi = this.formData.inflation / 100 / 12;
+                let contrib = this.formData.monthlyExpense;
                 
-                for (let month = 0; month <= formData.yearsToRetirement * 12; month++) {
-                    const year = Math.floor(month / 12);
-                    
-                    if (year > 5) {
-                        monthlyContrib = formData.monthlyExpense * Math.pow(1 + monthlyInflation, month);
-                    }
-                    
-                    if (month % 12 === 0) {
-                        data.push({
-                            year: year,
-                            balance: Math.round(balance)
-                        });
-                    }
-                    
-                    balance = balance * (1 + monthlyReturn) + monthlyContrib;
+                for (let m = 0; m <= this.formData.yearsToRetirement * 12; m++) {
+                    const y = Math.floor(m / 12);
+                    if (y > 5) contrib = this.formData.monthlyExpense * Math.pow(1 + mi, m);
+                    if (m % 12 === 0) data.push({ year: y, balance: Math.round(balance) });
+                    balance = balance * (1 + mr) + contrib;
                 }
-                
                 return data;
-            };
+            }
 
-            const getInvestmentDistribution = () => {
-                const distributions = {
+            getInvestmentDist() {
+                const dist = {
                     conservador: { paredes: 50, habitaciones: 30, terraza: 15, piscina: 5 },
                     moderado: { paredes: 35, habitaciones: 35, terraza: 25, piscina: 5 },
                     agresivo: { paredes: 20, habitaciones: 35, terraza: 35, piscina: 10 }
                 };
-                return distributions[investmentProfile];
-            };
+                return dist[this.investmentProfile];
+            }
 
-            const getVortexFunds = () => {
-                const totalPatrimony = calculateGoldenNumber();
+            getVortexFunds() {
+                const gn = this.calculateGoldenNumber();
                 return {
-                    imprevistos: totalPatrimony * 0.05,
-                    oxigeno: Math.max(formData.monthlyExpense * 3, formData.monthlyExpense * 6),
-                    retiro: totalPatrimony * 0.90
+                    imprevistos: Math.round(gn * 0.05),
+                    oxigeno: Math.round(Math.max(this.formData.monthlyExpense * 3, this.formData.monthlyExpense * 6)),
+                    retiro: Math.round(gn * 0.90)
                 };
-            };
-
-            const goldenNumber = calculateGoldenNumber();
-            const projectionData = calculateProjection();
-            const investmentDist = getInvestmentDistribution();
-            const vortexFunds = getVortexFunds();
-
-            // SETUP
-            if (currentStep === 'setup') {
-                return React.createElement('div', { className: 'container setup-container' },
-                    React.createElement('h1', { className: 'title-main' }, '💰 Tu Plan de Retiro Money-Flow'),
-                    React.createElement('p', { style: {fontSize: '14px', color: '#666', marginBottom: '2rem'} }, 'Método de Claudia Uribe para alcanzar tu libertad financiera'),
-                    React.createElement('div', { className: 'form-grid' },
-                        React.createElement('div', { className: 'form-group' },
-                            React.createElement('label', null, 'Tu nombre'),
-                            React.createElement('input', { type: 'text', value: formData.name, onChange: (e) => setFormData({...formData, name: e.target.value}), placeholder: 'Ej: Camilo' })
-                        ),
-                        React.createElement('div', { className: 'form-group' },
-                            React.createElement('label', null, 'Gasto mensual actual (COP)'),
-                            React.createElement('input', { type: 'number', value: formData.monthlyExpense, onChange: (e) => setFormData({...formData, monthlyExpense: parseInt(e.target.value)}) }),
-                            React.createElement('p', { className: 'hint' }, 'Lo que necesitas para vivir mensualmente')
-                        ),
-                        React.createElement('div', { className: 'form-group' },
-                            React.createElement('label', null, 'Años para alcanzar retiro'),
-                            React.createElement('input', { type: 'number', value: formData.yearsToRetirement, onChange: (e) => setFormData({...formData, yearsToRetirement: parseInt(e.target.value)}), min: '1', max: '50' })
-                        ),
-                        React.createElement('div', { className: 'form-group' },
-                            React.createElement('label', null, 'Capital inicial invertido (COP)'),
-                            React.createElement('input', { type: 'number', value: formData.initialCapital, onChange: (e) => setFormData({...formData, initialCapital: parseInt(e.target.value)}) }),
-                            React.createElement('p', { className: 'hint' }, 'Dinero ya invertido')
-                        ),
-                        React.createElement('div', { className: 'form-group' },
-                            React.createElement('label', null, 'Patrimonio actual a invertir (COP)'),
-                            React.createElement('input', { type: 'number', value: formData.currentPatrimony, onChange: (e) => setFormData({...formData, currentPatrimony: parseInt(e.target.value)}) }),
-                            React.createElement('p', { className: 'hint' }, 'Casa, vehículo, activos a vender')
-                        ),
-                        React.createElement('div', { className: 'form-group' },
-                            React.createElement('label', null, 'Rentabilidad esperada anual (%)'),
-                            React.createElement('input', { type: 'number', value: formData.expectedReturn, onChange: (e) => setFormData({...formData, expectedReturn: parseFloat(e.target.value)}), min: '0', max: '30', step: '0.5' })
-                        ),
-                        React.createElement('div', { className: 'form-group' },
-                            React.createElement('label', null, 'Inflación esperada anual (%)'),
-                            React.createElement('input', { type: 'number', value: formData.inflation, onChange: (e) => setFormData({...formData, inflation: parseFloat(e.target.value)}), min: '0', max: '15', step: '0.5' })
-                        ),
-                        React.createElement('button', { className: 'btn btn-primary', onClick: saveProfile, style: {gridColumn: '1 / -1', marginTop: '1rem'} }, '🚀 Comenzar Plan')
-                    )
-                );
             }
 
-            // DASHBOARD
-            if (currentStep === 'dashboard' && profile) {
-                return React.createElement('div', { className: 'container' },
-                    React.createElement('div', { className: 'header-nav' },
-                        React.createElement('h1', { className: 'title-main' }, `¡Hola ${profile.name}! 👋`),
-                        React.createElement('button', { className: 'btn btn-secondary', onClick: () => setCurrentStep('setup') }, '✏️ Editar datos')
-                    ),
-                    React.createElement('div', { className: 'golden-card' },
-                        React.createElement('p', { className: 'golden-label' }, 'TU NÚMERO DORADO 💰'),
-                        React.createElement('p', { className: 'golden-number' }, `$${(goldenNumber / 1000000).toFixed(0)}M`),
-                        React.createElement('p', { className: 'golden-description' }, `Patrimonio necesario para vivir hasta los 85 años con rentabilidad del ${profile.expectedReturn}% e inflación del ${profile.inflation}%`)
-                    ),
-                    React.createElement('div', { className: 'metrics-grid' },
-                        React.createElement('div', { className: 'metric-card' },
-                            React.createElement('p', { className: 'metric-label' }, '📅 Años para retiro'),
-                            React.createElement('p', { className: 'metric-value' }, profile.yearsToRetirement)
-                        ),
-                        React.createElement('div', { className: 'metric-card' },
-                            React.createElement('p', { className: 'metric-label' }, '💸 Gasto mensual'),
-                            React.createElement('p', { className: 'metric-value' }, `$${(profile.monthlyExpense / 1000000).toFixed(1)}M`)
-                        ),
-                        React.createElement('div', { className: 'metric-card' },
-                            React.createElement('p', { className: 'metric-label' }, '📊 Capital invertido'),
-                            React.createElement('p', { className: 'metric-value' }, `$${(profile.initialCapital / 1000000).toFixed(1)}M`)
-                        ),
-                        React.createElement('div', { className: 'metric-card' },
-                            React.createElement('p', { className: 'metric-label' }, '📈 Rentabilidad'),
-                            React.createElement('p', { className: 'metric-value' }, `${profile.expectedReturn}%`)
-                        )
-                    ),
-                    React.createElement('div', { className: 'nav-buttons' },
-                        React.createElement('button', { className: 'btn btn-nav', onClick: () => setCurrentStep('palancas') }, '📊 Las 3 Palancas'),
-                        React.createElement('button', { className: 'btn btn-nav', onClick: () => setCurrentStep('seguimiento') }, '📈 Mi Seguimiento'),
-                        React.createElement('button', { className: 'btn btn-nav', onClick: () => setCurrentStep('proyecciones') }, '🔮 Proyecciones')
-                    ),
-                    React.createElement('div', { className: 'chart-container' },
-                        React.createElement('h3', null, '📊 Proyección de Patrimonio'),
-                        React.createElement('p', { style: {fontSize: '12px', color: '#666', marginBottom: '1rem'} }, `Año 0: $${((profile.initialCapital + profile.currentPatrimony) / 1000000).toFixed(1)}M → Año ${profile.yearsToRetirement}: $${(projectionData[projectionData.length - 1]?.balance / 1000000).toFixed(1)}M`),
-                        React.createElement('div', { style: {background: '#f9f9f9', padding: '1rem', borderRadius: '6px', textAlign: 'center', color: '#666', fontSize: '13px'} }, '📈 Gráfico de crecimiento estimado basado en tus datos')
-                    )
-                );
+            renderSetup() {
+                return `
+                    <div class="container" style="max-width: 600px;">
+                        <h1>💰 Tu Plan de Retiro Money-Flow</h1>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Tu nombre</label>
+                                <input type="text" id="name" value="${this.formData.name}" placeholder="Ej: Camilo">
+                            </div>
+                            <div class="form-group">
+                                <label>Gasto mensual (COP)</label>
+                                <input type="number" id="monthly" value="${this.formData.monthlyExpense}">
+                            </div>
+                            <div class="form-group">
+                                <label>Años para retiro</label>
+                                <input type="number" id="years" value="${this.formData.yearsToRetirement}" min="1" max="50">
+                            </div>
+                            <div class="form-group">
+                                <label>Capital invertido (COP)</label>
+                                <input type="number" id="capital" value="${this.formData.initialCapital}">
+                            </div>
+                            <div class="form-group">
+                                <label>Patrimonio a invertir (COP)</label>
+                                <input type="number" id="patrimony" value="${this.formData.currentPatrimony}">
+                            </div>
+                            <div class="form-group">
+                                <label>Rentabilidad esperada (%)</label>
+                                <input type="number" id="return" value="${this.formData.expectedReturn}" min="0" max="30" step="0.5">
+                            </div>
+                            <div class="form-group">
+                                <label>Inflación esperada (%)</label>
+                                <input type="number" id="inflation" value="${this.formData.inflation}" min="0" max="15" step="0.5">
+                            </div>
+                            <button class="btn btn-primary" onclick="app.updateForm(); app.saveData();" style="grid-column: 1 / -1;">🚀 Comenzar Plan</button>
+                        </div>
+                    </div>
+                `;
             }
 
-            // PALANCAS
-            if (currentStep === 'palancas' && profile) {
-                return React.createElement('div', { className: 'container' },
-                    React.createElement('button', { className: 'btn btn-back', onClick: () => setCurrentStep('dashboard') }, '← Atrás'),
-                    React.createElement('h1', { className: 'title-main' }, 'Las 3 Palancas del Método Money-Flow'),
-                    
-                    React.createElement('div', { className: 'card' },
-                        React.createElement('h2', null, '🎯 Palanca 1: Cómo Ordenar tu Dinero'),
-                        React.createElement('div', { className: 'palanca-grid' },
-                            React.createElement('div', { className: 'palanca-item' },
-                                React.createElement('p', { className: 'metric-label' }, 'Gasto mensual'),
-                                React.createElement('p', { className: 'metric-value' }, `$${(profile.monthlyExpense / 1000000).toFixed(1)}M`),
-                                React.createElement('p', { className: 'hint' }, 'Lo necesario para vivir')
-                            ),
-                            React.createElement('div', { className: 'palanca-item' },
-                                React.createElement('p', { className: 'metric-label' }, 'Aporte mensual ideal'),
-                                React.createElement('p', { className: 'metric-value accent' }, `$${(profile.monthlyExpense / 1000000).toFixed(1)}M`),
-                                React.createElement('p', { className: 'hint' }, 'Primero ahorrar, luego vivir')
-                            )
-                        ),
-                        React.createElement('p', { className: 'card-description' }, 'La clave es destinar tu aporte de inversión PRIMERO, antes de cualquier gasto. No es lo que ganas, es lo que tu dinero debe generar cada mes para sustentarte y a una persona más.')
-                    ),
-
-                    React.createElement('div', { className: 'card' },
-                        React.createElement('h2', null, '🏠 Palanca 2: Rentar Mejor Según tu Perfil'),
-                        React.createElement('div', { className: 'profile-selector' },
-                            React.createElement('label', null, 'Selecciona tu perfil de inversión:'),
-                            React.createElement('div', { className: 'button-group' },
-                                ['conservador', 'moderado', 'agresivo'].map(p =>
-                                    React.createElement('button', {
-                                        key: p,
-                                        className: `btn-toggle ${investmentProfile === p ? 'active' : ''}`,
-                                        onClick: () => setInvestmentProfile(p)
-                                    }, p)
-                                )
-                            )
-                        ),
-                        React.createElement('p', { style: {fontSize: '12px', color: '#666', marginBottom: '1rem'} }, 'Distribución de tu capital invertido como una casa:'),
-                        React.createElement('div', { className: 'palanca-grid' },
-                            React.createElement('div', { className: 'investment-card brick' },
-                                React.createElement('p', { style: {fontSize: '11px', opacity: 0.9, margin: '0 0 0.5rem 0'} }, '🧱 Las Paredes'),
-                                React.createElement('p', { style: {fontSize: '20px', fontWeight: 500, margin: 0} }, `${investmentDist.paredes}%`),
-                                React.createElement('p', { style: {fontSize: '10px', opacity: 0.8, margin: '0.5rem 0 0 0'} }, 'CDT, Bonos, Cuentas')
-                            ),
-                            React.createElement('div', { className: 'investment-card house' },
-                                React.createElement('p', { style: {fontSize: '11px', opacity: 0.9, margin: '0 0 0.5rem 0'} }, '🏡 Las Habitaciones'),
-                                React.createElement('p', { style: {fontSize: '20px', fontWeight: 500, margin: 0} }, `${investmentDist.habitaciones}%`),
-                                React.createElement('p', { style: {fontSize: '10px', opacity: 0.8, margin: '0.5rem 0 0 0'} }, 'ETFs, Fondos Indexados')
-                            ),
-                            React.createElement('div', { className: 'investment-card terrace' },
-                                React.createElement('p', { style: {fontSize: '11px', opacity: 0.9, margin: '0 0 0.5rem 0'} }, '🌳 La Terraza'),
-                                React.createElement('p', { style: {fontSize: '20px', fontWeight: 500, margin: 0} }, `${investmentDist.terraza}%`),
-                                React.createElement('p', { style: {fontSize: '10px', opacity: 0.8, margin: '0.5rem 0 0 0'} }, 'Acciones individuales')
-                            ),
-                            React.createElement('div', { className: 'investment-card pool' },
-                                React.createElement('p', { style: {fontSize: '11px', opacity: 0.9, margin: '0 0 0.5rem 0'} }, '💎 La Piscina'),
-                                React.createElement('p', { style: {fontSize: '20px', fontWeight: 500, margin: 0} }, `${investmentDist.piscina}%`),
-                                React.createElement('p', { style: {fontSize: '10px', opacity: 0.8, margin: '0.5rem 0 0 0'} }, 'Cripto, Fintech')
-                            )
-                        )
-                    ),
-
-                    React.createElement('div', { className: 'card' },
-                        React.createElement('h2', null, '🌀 Palanca 3: Método Vortex (3 Fondos Rentables)'),
-                        React.createElement('div', { className: 'vortex-grid' },
-                            React.createElement('div', { className: 'vortex-card emergency' },
-                                React.createElement('p', { style: {fontSize: '12px', opacity: 0.9, margin: '0 0 0.5rem 0', fontWeight: 500} }, '🚨 Fondo de Imprevistos'),
-                                React.createElement('p', { style: {fontSize: '18px', fontWeight: 500, margin: 0} }, '5%'),
-                                React.createElement('p', { style: {fontSize: '11px', opacity: 0.85, margin: '0.75rem 0 0 0'} }, `$${(vortexFunds.imprevistos / 1000000).toFixed(1)}M`),
-                                React.createElement('p', { style: {fontSize: '10px', opacity: 0.75, margin: '0.5rem 0 0 0'} }, 'Gastos inesperados')
-                            ),
-                            React.createElement('div', { className: 'vortex-card oxygen' },
-                                React.createElement('p', { style: {fontSize: '12px', opacity: 0.9, margin: '0 0 0.5rem 0', fontWeight: 500} }, '💨 Reserva de Oxígeno'),
-                                React.createElement('p', { style: {fontSize: '18px', fontWeight: 500, margin: 0} }, '10%'),
-                                React.createElement('p', { style: {fontSize: '11px', opacity: 0.85, margin: '0.75rem 0 0 0'} }, `$${(vortexFunds.oxigeno / 1000000).toFixed(1)}M`),
-                                React.createElement('p', { style: {fontSize: '10px', opacity: 0.75, margin: '0.5rem 0 0 0'} }, 'Emergencias (3-6m)')
-                            ),
-                            React.createElement('div', { className: 'vortex-card retirement' },
-                                React.createElement('p', { style: {fontSize: '12px', opacity: 0.9, margin: '0 0 0.5rem 0', fontWeight: 500} }, '🎯 Fondo de Retiro'),
-                                React.createElement('p', { style: {fontSize: '18px', fontWeight: 500, margin: 0} }, '85%'),
-                                React.createElement('p', { style: {fontSize: '11px', opacity: 0.85, margin: '0.75rem 0 0 0'} }, `$${(vortexFunds.retiro / 1000000).toFixed(1)}M`),
-                                React.createElement('p', { style: {fontSize: '10px', opacity: 0.75, margin: '0.5rem 0 0 0'} }, 'Inversión principal')
-                            )
-                        )
-                    )
-                );
+            updateForm() {
+                this.formData.name = document.getElementById('name').value;
+                this.formData.monthlyExpense = parseInt(document.getElementById('monthly').value);
+                this.formData.yearsToRetirement = parseInt(document.getElementById('years').value);
+                this.formData.initialCapital = parseInt(document.getElementById('capital').value);
+                this.formData.currentPatrimony = parseInt(document.getElementById('patrimony').value);
+                this.formData.expectedReturn = parseFloat(document.getElementById('return').value);
+                this.formData.inflation = parseFloat(document.getElementById('inflation').value);
             }
 
-            // SEGUIMIENTO
-            if (currentStep === 'seguimiento' && profile) {
-                return React.createElement('div', { className: 'container' },
-                    React.createElement('button', { className: 'btn btn-back', onClick: () => setCurrentStep('dashboard') }, '← Atrás'),
-                    React.createElement('h1', { className: 'title-main' }, '📈 Mi Seguimiento de Inversión'),
-                    React.createElement('div', { className: 'info-box' }, '📊 Registra tus aportes mensuales para ver cómo crece tu patrimonio hacia tu número dorado'),
-                    React.createElement('div', { className: 'card' },
-                        React.createElement('h3', null, 'Registrar nuevo aporte'),
-                        React.createElement('div', { className: 'form-row' },
-                            React.createElement('input', { type: 'month', id: 'month' }),
-                            React.createElement('input', { type: 'number', id: 'amount', placeholder: 'Monto aporte (COP)' }),
-                            React.createElement('button', {
-                                className: 'btn btn-primary',
-                                onClick: () => {
-                                    const month = document.getElementById('month').value;
-                                    const amount = parseInt(document.getElementById('amount').value);
-                                    if (month && amount > 0) {
-                                        setMonthlyContributions([...monthlyContributions, { month, amount }]);
-                                        document.getElementById('amount').value = '';
-                                    }
-                                }
-                            }, 'Agregar')
-                        ),
-                        monthlyContributions.length > 0 && React.createElement('div', { className: 'contributions-list' },
-                            React.createElement('h4', null, 'Mis Aportes Registrados'),
-                            React.createElement('div', { className: 'list' },
-                                monthlyContributions.map((c, i) =>
-                                    React.createElement('div', { key: i, className: 'list-item' },
-                                        React.createElement('span', null, c.month),
-                                        React.createElement('span', { style: {fontWeight: 500, color: '#378ADD'} }, `$${(c.amount / 1000000).toFixed(1)}M`)
-                                    )
-                                )
-                            ),
-                            React.createElement('div', { className: 'total-box' },
-                                `Total aportado: $${(monthlyContributions.reduce((a, c) => a + c.amount, 0) / 1000000).toFixed(1)}M`
-                            )
-                        )
-                    )
-                );
+            renderDashboard() {
+                const gn = this.calculateGoldenNumber();
+                const proj = this.calculateProjection();
+                const last = proj[proj.length - 1];
+                
+                return `
+                    <div class="container">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                            <h1>¡Hola ${this.formData.name}! 👋</h1>
+                            <button class="btn btn-secondary" onclick="app.currentStep = 'setup'; app.render();">✏️ Editar</button>
+                        </div>
+                        <div class="golden-card">
+                            <p style="font-size: 12px; opacity: 0.9; margin-bottom: 0.5rem;">TU NÚMERO DORADO 💰</p>
+                            <p class="golden-number">$${(gn / 1000000).toFixed(0)}M</p>
+                            <p style="font-size: 12px; opacity: 0.85; margin-top: 0.5rem;">Patrimonio necesario para vivir hasta los 85 años</p>
+                        </div>
+                        <div class="metrics-grid">
+                            <div class="metric-card"><p style="font-size: 11px; color: #666;">📅 Años</p><p class="metric-value">${this.formData.yearsToRetirement}</p></div>
+                            <div class="metric-card"><p style="font-size: 11px; color: #666;">💸 Gasto mensual</p><p class="metric-value">$${(this.formData.monthlyExpense / 1000000).toFixed(1)}M</p></div>
+                            <div class="metric-card"><p style="font-size: 11px; color: #666;">📊 Capital</p><p class="metric-value">$${(this.formData.initialCapital / 1000000).toFixed(1)}M</p></div>
+                            <div class="metric-card"><p style="font-size: 11px; color: #666;">📈 Rentabilidad</p><p class="metric-value">${this.formData.expectedReturn}%</p></div>
+                        </div>
+                        <div class="nav-buttons">
+                            <button class="btn-nav" onclick="app.currentStep = 'palancas'; app.render();">📊 Las 3 Palancas</button>
+                            <button class="btn-nav" onclick="app.currentStep = 'seguimiento'; app.render();">📈 Mi Seguimiento</button>
+                            <button class="btn-nav" onclick="app.currentStep = 'proyecciones'; app.render();">🔮 Proyecciones</button>
+                        </div>
+                        <div class="card">
+                            <h3 style="margin-bottom: 1rem;">📊 Proyección de Patrimonio</h3>
+                            <p style="font-size: 12px; color: #666;">Año 0: $${((this.formData.initialCapital + this.formData.currentPatrimony) / 1000000).toFixed(1)}M → Año ${this.formData.yearsToRetirement}: $${(last.balance / 1000000).toFixed(1)}M</p>
+                        </div>
+                    </div>
+                `;
             }
 
-            // PROYECCIONES
-            if (currentStep === 'proyecciones' && profile) {
-                const firstBalance = (projectionData[0]?.balance || 0);
-                const lastBalance = (projectionData[projectionData.length - 1]?.balance || 0);
-                const year5Balance = (projectionData[5]?.balance || 0);
+            renderPalancas() {
+                const dist = this.getInvestmentDist();
+                const vortex = this.getVortexFunds();
+                
+                return `
+                    <div class="container">
+                        <button class="btn-back" onclick="app.currentStep = 'dashboard'; app.render();">← Atrás</button>
+                        <h1>Las 3 Palancas</h1>
+                        
+                        <div class="card">
+                            <h2 style="margin-bottom: 1rem;">🎯 Palanca 1: Cómo Ordenar tu Dinero</h2>
+                            <div class="grid-2">
+                                <div class="item-box">
+                                    <p style="font-size: 11px; color: #666; margin-bottom: 0.5rem;">Gasto mensual</p>
+                                    <p class="item-box value">$${(this.formData.monthlyExpense / 1000000).toFixed(1)}M</p>
+                                </div>
+                                <div class="item-box">
+                                    <p style="font-size: 11px; color: #666; margin-bottom: 0.5rem;">Aporte ideal</p>
+                                    <p class="item-box value accent">$${(this.formData.monthlyExpense / 1000000).toFixed(1)}M</p>
+                                </div>
+                            </div>
+                        </div>
 
-                return React.createElement('div', { className: 'container' },
-                    React.createElement('button', { className: 'btn btn-back', onClick: () => setCurrentStep('dashboard') }, '← Atrás'),
-                    React.createElement('h1', { className: 'title-main' }, '🔮 Proyecciones Financieras'),
-                    React.createElement('div', { className: 'chart-container' },
-                        React.createElement('h3', null, '📊 Crecimiento del Patrimonio'),
-                        React.createElement('p', { style: {fontSize: '12px', color: '#666', marginBottom: '1rem'} }, `Inicio: $${(firstBalance / 1000000).toFixed(1)}M → Año ${profile.yearsToRetirement}: $${(lastBalance / 1000000).toFixed(1)}M`)
-                    ),
-                    React.createElement('div', { className: 'card' },
-                        React.createElement('h3', null, '🎯 Hitos Importantes'),
-                        React.createElement('div', { className: 'milestones-grid' },
-                            React.createElement('div', { className: 'milestone' },
-                                React.createElement('p', { className: 'metric-label' }, 'Capital Inicial'),
-                                React.createElement('p', { className: 'metric-value' }, `$${((profile.initialCapital + profile.currentPatrimony) / 1000000).toFixed(1)}M`)
-                            ),
-                            React.createElement('div', { className: 'milestone' },
-                                React.createElement('p', { className: 'metric-label' }, 'Patrimonio Año 5'),
-                                React.createElement('p', { className: 'metric-value' }, `$${(year5Balance / 1000000).toFixed(1)}M`),
-                                React.createElement('p', { className: 'hint' }, 'Fin de fase arranque')
-                            ),
-                            React.createElement('div', { className: 'milestone' },
-                                React.createElement('p', { className: 'metric-label' }, 'Patrimonio Final'),
-                                React.createElement('p', { className: 'metric-value accent' }, `$${(lastBalance / 1000000).toFixed(1)}M`),
-                                React.createElement('p', { className: 'hint' }, `Año ${profile.yearsToRetirement}`)
-                            ),
-                            React.createElement('div', { className: 'milestone' },
-                                React.createElement('p', { className: 'metric-label' }, 'Tu Número Dorado'),
-                                React.createElement('p', { className: 'metric-value success' }, `$${(goldenNumber / 1000000).toFixed(1)}M`),
-                                React.createElement('p', { className: 'hint' }, 'Meta a alcanzar')
-                            )
-                        )
-                    ),
-                    React.createElement('div', { className: 'analysis-box' },
-                        React.createElement('h3', null, '✅ Análisis de tu Plan'),
-                        React.createElement('div', { className: 'analysis-points' },
-                            React.createElement('p', null, `✓ En ${profile.yearsToRetirement} años habrás acumulado aproximadamente $${(lastBalance / 1000000).toFixed(1)}M`),
-                            React.createElement('p', null, `✓ Tu número dorado es $${(goldenNumber / 1000000).toFixed(1)}M, necesario para vivir hasta los 85 años`),
-                            React.createElement('p', null, '✓ La diferencia será tu colchón de seguridad para imprevistos o herencia')
-                        )
-                    )
-                );
+                        <div class="card">
+                            <h2 style="margin-bottom: 1rem;">🏠 Palanca 2: Rentar Mejor</h2>
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 0.75rem;">Perfil:</label>
+                                <div class="button-group">
+                                    <button class="btn-toggle ${this.investmentProfile === 'conservador' ? 'active' : ''}" onclick="app.investmentProfile = 'conservador'; app.render();">conservador</button>
+                                    <button class="btn-toggle ${this.investmentProfile === 'moderado' ? 'active' : ''}" onclick="app.investmentProfile = 'moderado'; app.render();">moderado</button>
+                                    <button class="btn-toggle ${this.investmentProfile === 'agresivo' ? 'active' : ''}" onclick="app.investmentProfile = 'agresivo'; app.render();">agresivo</button>
+                                </div>
+                            </div>
+                            <div class="grid-2">
+                                <div style="background: linear-gradient(135deg, #B8860B 0%, #8B6914 100%); padding: 1.5rem; border-radius: 8px; color: white;">
+                                    <p style="font-size: 11px; opacity: 0.9;">🧱 Paredes</p>
+                                    <p style="font-size: 20px; font-weight: 600; margin: 0;">${dist.paredes}%</p>
+                                </div>
+                                <div style="background: linear-gradient(135deg, #4169E1 0%, #1E90FF 100%); padding: 1.5rem; border-radius: 8px; color: white;">
+                                    <p style="font-size: 11px; opacity: 0.9;">🏡 Habitaciones</p>
+                                    <p style="font-size: 20px; font-weight: 600; margin: 0;">${dist.habitaciones}%</p>
+                                </div>
+                                <div style="background: linear-gradient(135deg, #FF6347 0%, #DC143C 100%); padding: 1.5rem; border-radius: 8px; color: white;">
+                                    <p style="font-size: 11px; opacity: 0.9;">🌳 Terraza</p>
+                                    <p style="font-size: 20px; font-weight: 600; margin: 0;">${dist.terraza}%</p>
+                                </div>
+                                <div style="background: linear-gradient(135deg, #9932CC 0%, #8B008B 100%); padding: 1.5rem; border-radius: 8px; color: white;">
+                                    <p style="font-size: 11px; opacity: 0.9;">💎 Piscina</p>
+                                    <p style="font-size: 20px; font-weight: 600; margin: 0;">${dist.piscina}%</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h2 style="margin-bottom: 1rem;">🌀 Palanca 3: Método Vortex</h2>
+                            <div class="vortex-grid">
+                                <div class="vortex-card vortex-emergency">
+                                    <p style="font-size: 12px; opacity: 0.9; font-weight: 500;">🚨 Imprevistos</p>
+                                    <p style="font-size: 18px; font-weight: 600; margin: 0;">5%</p>
+                                    <p style="font-size: 11px; opacity: 0.85; margin-top: 0.75rem;">$${(vortex.imprevistos / 1000000).toFixed(1)}M</p>
+                                </div>
+                                <div class="vortex-card vortex-oxygen">
+                                    <p style="font-size: 12px; opacity: 0.9; font-weight: 500;">💨 Oxígeno</p>
+                                    <p style="font-size: 18px; font-weight: 600; margin: 0;">10%</p>
+                                    <p style="font-size: 11px; opacity: 0.85; margin-top: 0.75rem;">$${(vortex.oxigeno / 1000000).toFixed(1)}M</p>
+                                </div>
+                                <div class="vortex-card vortex-retirement">
+                                    <p style="font-size: 12px; opacity: 0.9; font-weight: 500;">🎯 Retiro</p>
+                                    <p style="font-size: 18px; font-weight: 600; margin: 0;">85%</p>
+                                    <p style="font-size: 11px; opacity: 0.85; margin-top: 0.75rem;">$${(vortex.retiro / 1000000).toFixed(1)}M</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
             }
 
-            return null;
+            renderSeguimiento() {
+                let html = `
+                    <div class="container">
+                        <button class="btn-back" onclick="app.currentStep = 'dashboard'; app.render();">← Atrás</button>
+                        <h1>📈 Mi Seguimiento</h1>
+                        <div class="info-box">📊 Registra tus aportes mensuales</div>
+                        <div class="card">
+                            <h3>Registrar nuevo aporte</h3>
+                            <div class="form-row">
+                                <input type="month" id="contrib-month">
+                                <input type="number" id="contrib-amount" placeholder="Monto (COP)">
+                                <button class="btn btn-primary" onclick="app.addContribution();">Agregar</button>
+                            </div>
+                `;
+                
+                if (this.monthlyContributions.length > 0) {
+                    html += `
+                        <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 1rem;">Mis Aportes</h4>
+                        <div class="list">
+                    `;
+                    this.monthlyContributions.forEach(c => {
+                        html += `<div class="list-item"><span>${c.month}</span><span style="font-weight: 600; color: #378ADD;">$${(c.amount / 1000000).toFixed(1)}M</span></div>`;
+                    });
+                    const total = this.monthlyContributions.reduce((a, c) => a + c.amount, 0);
+                    html += `</div><div class="total-box">Total: $${(total / 1000000).toFixed(1)}M</div>`;
+                }
+                html += `</div></div>`;
+                return html;
+            }
+
+            addContribution() {
+                const month = document.getElementById('contrib-month').value;
+                const amount = parseInt(document.getElementById('contrib-amount').value);
+                if (month && amount > 0) {
+                    this.monthlyContributions.push({ month, amount });
+                    document.getElementById('contrib-amount').value = '';
+                    this.render();
+                }
+            }
+
+            renderProyecciones() {
+                const gn = this.calculateGoldenNumber();
+                const proj = this.calculateProjection();
+                const first = proj[0];
+                const last = proj[proj.length - 1];
+                const y5 = proj[5] || proj[0];
+                
+                return `
+                    <div class="container">
+                        <button class="btn-back" onclick="app.currentStep = 'dashboard'; app.render();">← Atrás</button>
+                        <h1>🔮 Proyecciones</h1>
+                        <div class="card">
+                            <h3>Crecimiento estimado</h3>
+                            <p style="font-size: 12px; color: #666;">Año 0: $${(first.balance / 1000000).toFixed(1)}M → Año ${this.formData.yearsToRetirement}: $${(last.balance / 1000000).toFixed(1)}M</p>
+                        </div>
+                        <div class="card">
+                            <h3>Hitos importantes</h3>
+                            <div class="milestones-grid">
+                                <div class="milestone"><p style="font-size: 11px; color: #666;">Capital Inicial</p><p class="milestone value">$${((this.formData.initialCapital + this.formData.currentPatrimony) / 1000000).toFixed(1)}M</p></div>
+                                <div class="milestone"><p style="font-size: 11px; color: #666;">Año 5</p><p class="milestone value">$${(y5.balance / 1000000).toFixed(1)}M</p></div>
+                                <div class="milestone"><p style="font-size: 11px; color: #666;">Año Final</p><p class="milestone value accent">$${(last.balance / 1000000).toFixed(1)}M</p></div>
+                                <div class="milestone"><p style="font-size: 11px; color: #666;">Número Dorado</p><p class="milestone value success">$${(gn / 1000000).toFixed(1)}M</p></div>
+                            </div>
+                        </div>
+                        <div class="analysis-box">
+                            <h3 style="margin-bottom: 1rem;">✅ Tu Plan</h3>
+                            <p>✓ En ${this.formData.yearsToRetimiento} años habrás acumulado $${(last.balance / 1000000).toFixed(1)}M</p>
+                            <p>✓ Tu número dorado es $${(gn / 1000000).toFixed(1)}M</p>
+                            <p>✓ La diferencia será tu colchón de seguridad</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            render() {
+                const app = document.getElementById('app');
+                switch(this.currentStep) {
+                    case 'setup': app.innerHTML = this.renderSetup(); break;
+                    case 'dashboard': app.innerHTML = this.renderDashboard(); break;
+                    case 'palancas': app.innerHTML = this.renderPalancas(); break;
+                    case 'seguimiento': app.innerHTML = this.renderSeguimiento(); break;
+                    case 'proyecciones': app.innerHTML = this.renderProyecciones(); break;
+                }
+            }
         }
 
-        ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(MoneyFlowApp));
+        const app = new MoneyFlowApp();
     </script>
 </body>
 </html>
