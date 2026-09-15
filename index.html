@@ -3,12 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ Finanzas Camilo // Quantum Retirement OS</title>
-    <!-- Google Fonts & Chart.js CDN -->
+    <title>⚡ Money-Flow // Quantum Retirement OS</title>
+    <!-- Google Fonts & Chart.js -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Firebase SDK Compat v10 (Permite ejecutar en local o web sin errores de CORS) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <style>
         :root {
@@ -54,7 +58,6 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Futuristic Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg-base); }
         ::-webkit-scrollbar-thumb {
@@ -69,12 +72,11 @@
             padding: 2.5rem 1.75rem;
         }
 
-        /* Top HUD Header */
         .hud-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2.5rem;
+            margin-bottom: 2rem;
             padding-bottom: 1.5rem;
             border-bottom: 1px solid var(--border-subtle);
             flex-wrap: wrap;
@@ -119,24 +121,42 @@
             display: block;
         }
 
-        .user-status {
+        .header-actions {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .sync-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
             background: var(--bg-surface);
-            padding: 0.5rem 1rem 0.5rem 1.2rem;
+            padding: 0.45rem 0.9rem;
             border-radius: 100px;
             border: 1px solid var(--border-subtle);
-            backdrop-filter: blur(12px);
+            font-family: var(--font-mono);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .status-dot {
             width: 8px;
             height: 8px;
-            background: var(--cyan-primary);
             border-radius: 50%;
+        }
+
+        .status-dot.online {
+            background: var(--cyan-primary);
             box-shadow: 0 0 10px var(--cyan-primary);
             animation: pulse-dot 2s infinite ease-in-out;
+        }
+
+        .status-dot.offline {
+            background: var(--amber);
+            box-shadow: 0 0 10px var(--amber);
         }
 
         @keyframes pulse-dot {
@@ -144,7 +164,6 @@
             50% { opacity: 1; transform: scale(1.3); }
         }
 
-        /* Buttons */
         .btn {
             font-family: var(--font-ui);
             font-size: 13px;
@@ -156,7 +175,7 @@
             display: inline-flex;
             align-items: center;
             gap: 0.6rem;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.25s ease;
             text-decoration: none;
         }
 
@@ -183,7 +202,6 @@
         .btn-glass:hover {
             background: rgba(255, 255, 255, 0.08);
             border-color: rgba(255, 255, 255, 0.2);
-            transform: translateY(-1px);
         }
 
         .btn-danger-glass {
@@ -199,7 +217,6 @@
             border-color: var(--coral);
         }
 
-        /* Futuristic Nav Bar / Segments */
         .hud-nav {
             display: flex;
             background: rgba(15, 23, 42, 0.65);
@@ -241,7 +258,6 @@
             box-shadow: 0 0 15px rgba(0, 245, 212, 0.15);
         }
 
-        /* Cards & Containers */
         .hud-card {
             background: var(--bg-glass-card);
             border: 1px solid var(--border-subtle);
@@ -250,13 +266,8 @@
             margin-bottom: 2rem;
             backdrop-filter: blur(16px);
             box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
             position: relative;
             overflow: hidden;
-        }
-
-        .hud-card:hover {
-            border-color: rgba(255, 255, 255, 0.14);
         }
 
         .card-header {
@@ -270,7 +281,6 @@
             font-size: 17px;
             font-weight: 700;
             color: var(--text-main);
-            letter-spacing: -0.3px;
             display: flex;
             align-items: center;
             gap: 0.6rem;
@@ -286,7 +296,6 @@
             box-shadow: 0 0 10px var(--cyan-primary);
         }
 
-        /* Hero Golden Card */
         .golden-hud {
             position: relative;
             background: linear-gradient(135deg, rgba(14, 26, 43, 0.9) 0%, rgba(10, 16, 28, 0.95) 100%);
@@ -339,7 +348,6 @@
             max-width: 600px;
         }
 
-        /* Metric Grid */
         .metric-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -354,13 +362,11 @@
             padding: 1.4rem 1.6rem;
             backdrop-filter: blur(12px);
             transition: all 0.25s ease;
-            position: relative;
         }
 
         .metric-tile:hover {
             border-color: var(--border-glow);
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.5);
         }
 
         .metric-tag {
@@ -385,14 +391,8 @@
             text-shadow: 0 0 20px rgba(0, 245, 212, 0.35);
         }
 
-        /* Futuristic Glowing Progress Bars */
-        .progress-group {
-            margin-bottom: 1.75rem;
-        }
-
-        .progress-group:last-child {
-            margin-bottom: 0;
-        }
+        .progress-group { margin-bottom: 1.75rem; }
+        .progress-group:last-child { margin-bottom: 0; }
 
         .progress-meta {
             display: flex;
@@ -435,10 +435,8 @@
             border-radius: 99px;
             transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
-            box-shadow: 0 0 16px currentColor;
         }
 
-        /* Shimmer sweep animation across bars */
         .progress-fill::after {
             content: '';
             position: absolute;
@@ -455,7 +453,6 @@
             100% { left: 200%; }
         }
 
-        /* Vortex 3-Column Visual Grid */
         .vortex-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -469,15 +466,7 @@
             border: 1px solid var(--border-subtle);
             background: rgba(14, 22, 36, 0.6);
             backdrop-filter: blur(12px);
-            position: relative;
-            overflow: hidden;
             transition: all 0.3s ease;
-        }
-
-        .vortex-box:hover {
-            transform: translateY(-3px);
-            border-color: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
         }
 
         .vortex-box.emergency { border-left: 4px solid var(--coral); }
@@ -506,7 +495,6 @@
             font-family: var(--font-mono);
         }
 
-        /* Forms & Inputs */
         .form-grid-hud {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -536,28 +524,16 @@
             color: var(--text-main);
             font-family: var(--font-mono);
             font-size: 14px;
-            transition: all 0.2s ease;
         }
 
         .field-box input:focus, .field-box select:focus {
             outline: none;
             border-color: var(--cyan-primary);
-            background: rgba(0, 245, 212, 0.04);
             box-shadow: 0 0 15px rgba(0, 245, 212, 0.2);
         }
 
-        /* Investment Ledger / Table */
-        .ledger-table-wrap {
-            overflow-x: auto;
-        }
-
-        .ledger-table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            font-size: 13px;
-        }
-
+        .ledger-table-wrap { overflow-x: auto; }
+        .ledger-table { width: 100%; border-collapse: collapse; font-size: 13px; }
         .ledger-table th {
             padding: 1rem;
             font-family: var(--font-mono);
@@ -566,48 +542,26 @@
             letter-spacing: 1.2px;
             color: var(--text-muted);
             border-bottom: 1px solid var(--border-subtle);
+            text-align: left;
         }
-
         .ledger-table td {
             padding: 1rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.04);
             color: var(--text-main);
         }
 
-        .ledger-table tr:hover td {
-            background: rgba(255, 255, 255, 0.02);
-        }
-
         .badge-fund {
             display: inline-flex;
-            align-items: center;
             padding: 0.25rem 0.65rem;
             border-radius: 100px;
             font-size: 11px;
             font-family: var(--font-mono);
             font-weight: 600;
-            text-transform: uppercase;
         }
+        .badge-fund.imprevistos { background: rgba(255, 77, 109, 0.15); color: var(--coral); }
+        .badge-fund.oxigeno { background: rgba(255, 183, 3, 0.15); color: var(--amber); }
+        .badge-fund.retiro { background: rgba(0, 245, 212, 0.15); color: var(--cyan-primary); }
 
-        .badge-fund.imprevistos {
-            background: rgba(255, 77, 109, 0.15);
-            color: var(--coral);
-            border: 1px solid rgba(255, 77, 109, 0.3);
-        }
-
-        .badge-fund.oxigeno {
-            background: rgba(255, 183, 3, 0.15);
-            color: var(--amber);
-            border: 1px solid rgba(255, 183, 3, 0.3);
-        }
-
-        .badge-fund.retiro {
-            background: rgba(0, 245, 212, 0.15);
-            color: var(--cyan-primary);
-            border: 1px solid rgba(0, 245, 212, 0.3);
-        }
-
-        /* Segmented Profile Switcher */
         .profile-switch-wrap {
             display: flex;
             gap: 0.5rem;
@@ -625,11 +579,9 @@
             color: var(--text-muted);
             padding: 0.6rem 1.2rem;
             border-radius: 8px;
-            font-family: var(--font-ui);
             font-size: 13px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
         }
 
         .profile-btn.active {
@@ -638,21 +590,16 @@
             box-shadow: 0 0 15px rgba(0, 245, 212, 0.35);
         }
 
-        /* Two-column layout helper */
         .grid-2col {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 1.75rem;
         }
 
-        @media (max-width: 992px) {
-            .grid-2col { grid-template-columns: 1fr; }
-        }
-
+        @media (max-width: 992px) { .grid-2col { grid-template-columns: 1fr; } }
         @media (max-width: 640px) {
             .app-container { padding: 1.25rem 1rem; }
             .hud-header { flex-direction: column; align-items: flex-start; }
-            .golden-hud { padding: 1.75rem; }
             .metric-grid { grid-template-columns: 1fr 1fr; }
             .vortex-grid { grid-template-columns: 1fr; }
         }
@@ -662,14 +609,33 @@
     <div id="app"></div>
 
     <script>
+        // =========================================================================
+        // 🔑 CONFIGURACIÓN VINCULADA DE FIREBASE
+        // =========================================================================
+        const FIREBASE_CONFIG = {
+            apiKey: "AIzaSyD8W6QrDo0cQ5D0qu_2Sh4aSTLH1GSsJWk",
+            authDomain: "moneyflow-app-6fd1b.firebaseapp.com",
+            projectId: "moneyflow-app-6fd1b",
+            storageBucket: "moneyflow-app-6fd1b.firebasestorage.app",
+            messagingSenderId: "544549520469",
+            appId: "1:544549520469:web:6b071d438cc37ee2a400dc"
+        };
+
+        // Identificador de tu bóveda privada para enlazar tus dispositivos
+        const VAULT_ID = "camilo-retiro-vault";
+        // =========================================================================
+
         class MoneyFlowApp {
             constructor() {
                 this.currentStep = 'setup';
                 this.investmentProfile = 'moderado';
                 this.investments = [];
-                this.charts = {}; // Store active Chart.js instances
+                this.charts = {};
+                this.isCloudConnected = false;
+                this.db = null;
+
                 this.formData = {
-                    name: '',
+                    name: 'Camilo',
                     monthlyExpense: 3500000,
                     yearsToRetirement: 15,
                     initialCapital: 5000000,
@@ -677,11 +643,47 @@
                     inflation: 4,
                     currentPatrimony: 0
                 };
-                this.loadData();
+
+                this.loadLocalData();
+                this.initFirebase();
                 this.render();
             }
 
-            loadData() {
+            initFirebase() {
+                try {
+                    if (!firebase.apps.length) {
+                        firebase.initializeApp(FIREBASE_CONFIG);
+                    }
+                    this.db = firebase.firestore();
+                    this.isCloudConnected = true;
+
+                    // ⚡ ESCUCHA EN TIEMPO REAL: Cada cambio en PC o Celular se actualiza en vivo
+                    this.db.collection('vaults').doc(VAULT_ID).onSnapshot(doc => {
+                        if (doc.exists) {
+                            const cloudData = doc.data();
+                            if (cloudData.formData) {
+                                this.formData = cloudData.formData;
+                            }
+                            if (cloudData.investments) {
+                                this.investments = cloudData.investments;
+                            }
+                            localStorage.setItem('moneyflow_profile', JSON.stringify(this.formData));
+                            localStorage.setItem('moneyflow_investments', JSON.stringify(this.investments));
+                            if (this.currentStep === 'setup' && this.formData.name) {
+                                this.currentStep = 'dashboard';
+                            }
+                            this.render();
+                        }
+                    }, error => {
+                        console.warn("Aviso Firestore:", error);
+                    });
+                } catch (e) {
+                    console.error("Error iniciando Firebase:", e);
+                    this.isCloudConnected = false;
+                }
+            }
+
+            loadLocalData() {
                 const saved = localStorage.getItem('moneyflow_profile');
                 const investments = localStorage.getItem('moneyflow_investments');
                 if (saved) {
@@ -693,9 +695,24 @@
                 }
             }
 
-            saveData() {
+            async saveData() {
+                // Guardar en almacenamiento local
                 localStorage.setItem('moneyflow_profile', JSON.stringify(this.formData));
                 localStorage.setItem('moneyflow_investments', JSON.stringify(this.investments));
+
+                // Sincronizar en la nube en tiempo real
+                if (this.db) {
+                    try {
+                        await this.db.collection('vaults').doc(VAULT_ID).set({
+                            formData: this.formData,
+                            investments: this.investments,
+                            lastUpdated: new Date().toISOString()
+                        });
+                    } catch (e) {
+                        console.error("Error al sincronizar en la nube:", e);
+                    }
+                }
+
                 this.currentStep = 'dashboard';
                 this.render();
             }
@@ -730,7 +747,6 @@
                 const mi = this.formData.inflation / 100 / 12;
                 let contrib = this.formData.monthlyExpense;
                 
-                // Bug fix: yearsToRetirement instead of yearsToRetimiento
                 for (let m = 0; m <= this.formData.yearsToRetirement * 12; m++) {
                     const y = Math.floor(m / 12);
                     if (y > 5) contrib = this.formData.monthlyExpense * Math.pow(1 + mi, m);
@@ -761,8 +777,7 @@
 
             getProgressPercent(current, target) {
                 if (!target || target === 0) return 0;
-                const percent = (current / target) * 100;
-                return Math.min(Math.round(percent), 100);
+                return Math.min(Math.round((current / target) * 100), 100);
             }
 
             addInvestment() {
@@ -783,19 +798,17 @@
                         amount,
                         notes
                     });
-                    localStorage.setItem('moneyflow_investments', JSON.stringify(this.investments));
-                    this.render();
+                    this.saveData();
                 }
             }
 
             deleteInvestment(id) {
                 this.investments = this.investments.filter(inv => inv.id !== id);
-                localStorage.setItem('moneyflow_investments', JSON.stringify(this.investments));
-                this.render();
+                this.saveData();
             }
 
             updateForm() {
-                this.formData.name = document.getElementById('name').value || 'Inversionista';
+                this.formData.name = document.getElementById('name').value || 'Camilo';
                 this.formData.monthlyExpense = parseInt(document.getElementById('monthly').value) || 0;
                 this.formData.yearsToRetirement = parseInt(document.getElementById('years').value) || 1;
                 this.formData.initialCapital = parseInt(document.getElementById('capital').value) || 0;
@@ -811,7 +824,37 @@
                 this.charts = {};
             }
 
-            // --- Views ---
+            renderHeader() {
+                return `
+                    <div class="hud-header">
+                        <div class="brand-cluster">
+                            <div class="brand-icon">⚡</div>
+                            <div>
+                                <span class="brand-tag">FINANCIAL MATRIX</span>
+                                <h1 class="brand-title">Money-Flow</h1>
+                            </div>
+                        </div>
+
+                        <div class="header-actions">
+                            <div class="sync-badge">
+                                <div class="status-dot ${this.isCloudConnected ? 'online' : 'offline'}"></div>
+                                <span>${this.isCloudConnected ? 'Nube en Vivo' : 'Modo Local'}</span>
+                            </div>
+
+                            <button class="btn btn-glass" style="padding: 0.45rem 1rem; font-size: 12px;" onclick="app.currentStep = 'setup'; app.render();">
+                                ⚙️ ${this.formData.name || 'Configurar'}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="hud-nav">
+                        <button class="nav-tab ${this.currentStep === 'dashboard' ? 'active' : ''}" onclick="app.currentStep = 'dashboard'; app.render();">Resumen General</button>
+                        <button class="nav-tab ${this.currentStep === 'investments' ? 'active' : ''}" onclick="app.currentStep = 'investments'; app.render();">Cartera Activa</button>
+                        <button class="nav-tab ${this.currentStep === 'proyecciones' ? 'active' : ''}" onclick="app.currentStep = 'proyecciones'; app.render();">Gráfico Proyección</button>
+                        <button class="nav-tab ${this.currentStep === 'palancas' ? 'active' : ''}" onclick="app.currentStep = 'palancas'; app.render();">Estrategia & Palancas</button>
+                    </div>
+                `;
+            }
 
             renderSetup() {
                 return `
@@ -820,7 +863,7 @@
                             <div class="brand-cluster" style="flex-direction: column;">
                                 <div class="brand-icon">⚡</div>
                                 <div>
-                                    <span class="brand-tag">QUANTUM OS // v2.0</span>
+                                    <span class="brand-tag">QUANTUM OS // CLOUD SYNC</span>
                                     <h1 class="brand-title" style="font-size: 32px;">Configurar Retiro</h1>
                                 </div>
                             </div>
@@ -863,36 +906,9 @@
                             </div>
 
                             <button class="btn btn-primary" onclick="app.updateForm(); app.saveData();" style="width: 100%; justify-content: center; padding: 1rem;">
-                                Iniciar Sistema Cuántico →
+                                Guardar & Sincronizar en Nube →
                             </button>
                         </div>
-                    </div>
-                `;
-            }
-
-            renderHeader() {
-                return `
-                    <div class="hud-header">
-                        <div class="brand-cluster">
-                            <div class="brand-icon">⚡</div>
-                            <div>
-                                <span class="brand-tag">FINANZAS</span>
-                                <h1 class="brand-title">App by Farlo</h1>
-                            </div>
-                        </div>
-
-                        <div class="user-status">
-                            <div class="status-dot"></div>
-                            <span style="font-family: var(--font-mono); font-size: 13px; font-weight: 600;">${this.formData.name || 'User'}</span>
-                            <button class="btn btn-glass" style="padding: 0.35rem 0.8rem; font-size: 11px;" onclick="app.currentStep = 'setup'; app.render();">Configurar</button>
-                        </div>
-                    </div>
-
-                    <div class="hud-nav">
-                        <button class="nav-tab ${this.currentStep === 'dashboard' ? 'active' : ''}" onclick="app.currentStep = 'dashboard'; app.render();">Resumen General</button>
-                        <button class="nav-tab ${this.currentStep === 'investments' ? 'active' : ''}" onclick="app.currentStep = 'investments'; app.render();">Cartera Activa</button>
-                        <button class="nav-tab ${this.currentStep === 'proyecciones' ? 'active' : ''}" onclick="app.currentStep = 'proyecciones'; app.render();">Gráfico Proyección</button>
-                        <button class="nav-tab ${this.currentStep === 'palancas' ? 'active' : ''}" onclick="app.currentStep = 'palancas'; app.render();">Estrategia & Palancas</button>
                     </div>
                 `;
             }
@@ -915,7 +931,6 @@
                     <div class="app-container">
                         ${this.renderHeader()}
 
-                        <!-- Golden Number HUD -->
                         <div class="golden-hud">
                             <div class="golden-label">
                                 <span style="display:inline-block; width:6px; height:6px; background:var(--cyan-primary); border-radius:50%;"></span>
@@ -923,11 +938,10 @@
                             </div>
                             <div class="golden-value">$${this.formatM(gn)}</div>
                             <p class="golden-meta">
-                                Patrimonio objetivo descontado por inflación y rendimiento neto para financiar tu libertad financiera indefinida.
+                                Patrimonio requerido para tu retiro financiero garantizado.
                             </p>
                         </div>
 
-                        <!-- Metrics Telemetry -->
                         <div class="metric-grid">
                             <div class="metric-tile">
                                 <p class="metric-tag">Horizonte</p>
@@ -947,38 +961,35 @@
                             </div>
                         </div>
 
-                        <!-- 2-Column Split: Progress Bars & Vortex Donut -->
                         <div class="grid-2col">
-                            <!-- Glowing Progress Bars -->
                             <div class="hud-card">
                                 <div class="card-header">
                                     <span class="card-title">Progreso de Fondos Vortex</span>
-                                    <span style="font-family: var(--font-mono); font-size: 12px; color: var(--cyan-primary);">TELEMETRÍA EN VIVO</span>
                                 </div>
 
                                 <div class="progress-group">
                                     <div class="progress-meta">
-                                        <span class="progress-name">🚨 Imprevistos (Fondo Contingencia)</span>
+                                        <span class="progress-name">🚨 Imprevistos</span>
                                         <span class="progress-numbers">
                                             $${this.formatM(imprevInvested)} / $${this.formatM(vortex.imprevistos)}
                                             <span class="progress-pct" style="color: var(--coral);">${imprevProgress}%</span>
                                         </span>
                                     </div>
                                     <div class="progress-track">
-                                        <div class="progress-fill" style="width: ${imprevProgress}%; background: var(--coral); color: var(--coral-glow);"></div>
+                                        <div class="progress-fill" style="width: ${imprevProgress}%; background: var(--coral); box-shadow: 0 0 12px var(--coral-glow);"></div>
                                     </div>
                                 </div>
 
                                 <div class="progress-group">
                                     <div class="progress-meta">
-                                        <span class="progress-name">💨 Oxígeno (Paz Financiera 6M)</span>
+                                        <span class="progress-name">💨 Oxígeno (Paz 6 Meses)</span>
                                         <span class="progress-numbers">
                                             $${this.formatM(oxyInvested)} / $${this.formatM(vortex.oxigeno)}
                                             <span class="progress-pct" style="color: var(--amber);">${oxyProgress}%</span>
                                         </span>
                                     </div>
                                     <div class="progress-track">
-                                        <div class="progress-fill" style="width: ${oxyProgress}%; background: var(--amber); color: var(--amber-glow);"></div>
+                                        <div class="progress-fill" style="width: ${oxyProgress}%; background: var(--amber); box-shadow: 0 0 12px var(--amber-glow);"></div>
                                     </div>
                                 </div>
 
@@ -991,7 +1002,7 @@
                                         </span>
                                     </div>
                                     <div class="progress-track">
-                                        <div class="progress-fill" style="width: ${retireProgress}%; background: var(--cyan-primary); color: var(--cyan-glow);"></div>
+                                        <div class="progress-fill" style="width: ${retireProgress}%; background: var(--cyan-primary); box-shadow: 0 0 12px var(--cyan-glow);"></div>
                                     </div>
                                 </div>
 
@@ -1004,12 +1015,11 @@
                                         </span>
                                     </div>
                                     <div class="progress-track" style="height: 14px;">
-                                        <div class="progress-fill" style="width: ${totalProgress}%; background: linear-gradient(90deg, #10b981, var(--cyan-primary)); color: var(--cyan-glow);"></div>
+                                        <div class="progress-fill" style="width: ${totalProgress}%; background: linear-gradient(90deg, #10b981, var(--cyan-primary));"></div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Donut Distribution Chart -->
                             <div class="hud-card">
                                 <div class="card-header">
                                     <span class="card-title">Distribución Vortex</span>
@@ -1020,7 +1030,6 @@
                             </div>
                         </div>
 
-                        <!-- Vortex Fund Cards -->
                         <div class="vortex-grid">
                             <div class="vortex-box emergency">
                                 <p class="vortex-head">🚨 Fondo Imprevistos</p>
@@ -1064,7 +1073,7 @@
                                 </div>
                                 <div class="field-box">
                                     <label>Custodio / Banco</label>
-                                    <input type="text" id="inv-bank" placeholder="Ej: Bancolombia, Trii, Hapi">
+                                    <input type="text" id="inv-bank" placeholder="Ej: Bancolombia, Trii">
                                 </div>
                                 <div class="field-box">
                                     <label>Fondo Destino</label>
@@ -1093,7 +1102,7 @@
                             <div class="card-header">
                                 <span class="card-title">Libro de Operaciones</span>
                                 <span style="font-family: var(--font-mono); font-weight: 700; color: var(--cyan-primary);">
-                                    Total Acumulado: ${this.formatFullCOP(total)}
+                                    Total: ${this.formatFullCOP(total)}
                                 </span>
                             </div>
 
@@ -1135,7 +1144,6 @@
                             ` : `
                                 <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
                                     <p style="font-size: 16px;">No hay registros en la cartera aún.</p>
-                                    <p style="font-size: 13px; margin-top: 0.5rem;">Agrega tu primera inversión en el formulario superior.</p>
                                 </div>
                             `}
                         </div>
@@ -1155,7 +1163,6 @@
                         <div class="hud-card">
                             <div class="card-header">
                                 <span class="card-title">Curva de Crecimiento Cuántico (Capital vs Tiempo)</span>
-                                <span style="font-family: var(--font-mono); font-size: 12px; color: var(--cyan-primary);">INTERPOLACIÓN MENSUAL</span>
                             </div>
                             <div style="position: relative; height: 380px; width: 100%;">
                                 <canvas id="projectionChart"></canvas>
@@ -1169,15 +1176,15 @@
                                 </div>
                                 <div class="metric-grid" style="grid-template-columns: 1fr; margin-bottom: 0;">
                                     <div class="metric-tile">
-                                        <p class="metric-tag">Año 0 (Punto de Partida)</p>
+                                        <p class="metric-tag">Año 0 (Partida)</p>
                                         <p class="metric-num">$${this.formatM(this.formData.initialCapital + this.formData.currentPatrimony)}</p>
                                     </div>
                                     <div class="metric-tile">
-                                        <p class="metric-tag">Año 5 (Aceleración de Interés Compuesto)</p>
+                                        <p class="metric-tag">Año 5 (Interés Compuesto)</p>
                                         <p class="metric-num">$${this.formatM(proj[5]?.balance || 0)}</p>
                                     </div>
                                     <div class="metric-tile">
-                                        <p class="metric-tag">Año ${this.formData.yearsToRetirement} (Retiro Proyectado)</p>
+                                        <p class="metric-tag">Año ${this.formData.yearsToRetirement} (Retiro)</p>
                                         <p class="metric-num highlight">$${this.formatM(last.balance)}</p>
                                     </div>
                                 </div>
@@ -1194,8 +1201,8 @@
                                     <p style="color: var(--text-muted); font-size: 14px; line-height: 1.6;">
                                         Tu trayectoria calculada alcanza <strong>$${this.formatM(last.balance)}</strong> en el año ${this.formData.yearsToRetirement}. 
                                         ${last.balance >= gn 
-                                            ? 'Superas tu Número Dorado (' + this.formatM(gn) + ') asegurando un retiro solvente indexado a la inflación.' 
-                                            : 'Para cubrir el 100% de tu Número Dorado (' + this.formatM(gn) + '), optimiza tus aportes mensuales o ajusta la rentabilidad esperada.'}
+                                            ? 'Superas tu Número Dorado (' + this.formatM(gn) + ') asegurando un retiro solvente.' 
+                                            : 'Para cubrir el 100% de tu Número Dorado (' + this.formatM(gn) + '), optimiza tus aportes mensuales.'}
                                     </p>
                                 </div>
                             </div>
@@ -1232,22 +1239,18 @@
                                     <div class="vortex-box" style="border-left: 4px solid #3a86ff;">
                                         <p class="vortex-head">🧱 Paredes (${dist.paredes}%)</p>
                                         <p class="vortex-val" style="color: #3a86ff;">${dist.paredes}%</p>
-                                        <p class="vortex-sub">Renta fija segura, CDT, bonos</p>
                                     </div>
                                     <div class="vortex-box" style="border-left: 4px solid #00f5d4;">
                                         <p class="vortex-head">🏡 Habitaciones (${dist.habitaciones}%)</p>
                                         <p class="vortex-val" style="color: #00f5d4;">${dist.habitaciones}%</p>
-                                        <p class="vortex-sub">Bienes raíces & dividendos estables</p>
                                     </div>
                                     <div class="vortex-box" style="border-left: 4px solid #ffb703;">
                                         <p class="vortex-head">🌳 Terraza (${dist.terraza}%)</p>
                                         <p class="vortex-val" style="color: #ffb703;">${dist.terraza}%</p>
-                                        <p class="vortex-sub">Renta variable & ETFs globales</p>
                                     </div>
                                     <div class="vortex-box" style="border-left: 4px solid #8338ec;">
                                         <p class="vortex-head">💎 Piscina (${dist.piscina}%)</p>
                                         <p class="vortex-val" style="color: #8338ec;">${dist.piscina}%</p>
-                                        <p class="vortex-sub">Activos de alto crecimiento / asimétricos</p>
                                     </div>
                                 </div>
 
@@ -1260,15 +1263,12 @@
                 `;
             }
 
-            // Initializes Chart.js graphs cleanly after rendering HTML
             initCharts() {
                 this.destroyCharts();
 
-                // 1. Dashboard Donut
                 const donutEl = document.getElementById('vortexDonutChart');
                 if (donutEl) {
                     const ctx = donutEl.getContext('2d');
-                    const vortex = this.getVortexFunds();
                     const imprev = this.getInvestedAmount('imprevistos');
                     const oxy = this.getInvestedAmount('oxigeno');
                     const retire = this.getInvestedAmount('retiro');
@@ -1281,25 +1281,20 @@
                                 data: [imprev || 1, oxy || 1, retire || 1],
                                 backgroundColor: ['#ff4d6d', '#ffb703', '#00f5d4'],
                                 borderColor: '#06080d',
-                                borderWidth: 3,
-                                hoverOffset: 8
+                                borderWidth: 3
                             }]
                         },
                         options: {
                             responsive: true,
                             maintainAspectRatio: false,
                             plugins: {
-                                legend: {
-                                    position: 'bottom',
-                                    labels: { color: '#94a3b8', font: { family: 'Space Grotesk' } }
-                                }
+                                legend: { position: 'bottom', labels: { color: '#94a3b8', font: { family: 'Space Grotesk' } } }
                             },
                             cutout: '72%'
                         }
                     });
                 }
 
-                // 2. Projection Line Chart
                 const projEl = document.getElementById('projectionChart');
                 if (projEl) {
                     const ctx = projEl.getContext('2d');
@@ -1308,7 +1303,6 @@
                     const values = projData.map(d => Math.round(d.balance / 1000000));
                     const gn = Math.round(this.calculateGoldenNumber() / 1000000);
 
-                    // Gradient Fill for futuristic glow
                     const gradient = ctx.createLinearGradient(0, 0, 0, 350);
                     gradient.addColorStop(0, 'rgba(0, 245, 212, 0.35)');
                     gradient.addColorStop(1, 'rgba(0, 245, 212, 0.0)');
@@ -1326,9 +1320,7 @@
                                     fill: true,
                                     tension: 0.35,
                                     borderWidth: 3,
-                                    pointBackgroundColor: '#00f5d4',
-                                    pointBorderColor: '#06080d',
-                                    pointHoverRadius: 6
+                                    pointBackgroundColor: '#00f5d4'
                                 },
                                 {
                                     label: 'Número Dorado Meta ($M)',
@@ -1336,8 +1328,7 @@
                                     borderColor: 'rgba(255, 77, 109, 0.7)',
                                     borderDash: [6, 6],
                                     borderWidth: 2,
-                                    pointRadius: 0,
-                                    fill: false
+                                    pointRadius: 0
                                 }
                             ]
                         },
@@ -1345,34 +1336,16 @@
                             responsive: true,
                             maintainAspectRatio: false,
                             plugins: {
-                                legend: {
-                                    labels: { color: '#94a3b8', font: { family: 'Space Grotesk' } }
-                                },
-                                tooltip: {
-                                    callbacks: {
-                                        label: (context) => `${context.dataset.label}: $${context.parsed.y}M`
-                                    }
-                                }
+                                legend: { labels: { color: '#94a3b8', font: { family: 'Space Grotesk' } } }
                             },
                             scales: {
-                                x: {
-                                    grid: { color: 'rgba(255,255,255,0.04)' },
-                                    ticks: { color: '#64748b', font: { family: 'Space Grotesk' } }
-                                },
-                                y: {
-                                    grid: { color: 'rgba(255,255,255,0.04)' },
-                                    ticks: {
-                                        color: '#64748b',
-                                        font: { family: 'Space Grotesk' },
-                                        callback: v => '$' + v + 'M'
-                                    }
-                                }
+                                x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#64748b' } },
+                                y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#64748b', callback: v => '$' + v + 'M' } }
                             }
                         }
                     });
                 }
 
-                // 3. House Allocation Donut
                 const houseEl = document.getElementById('houseChart');
                 if (houseEl) {
                     const distMap = {
@@ -1380,15 +1353,13 @@
                         moderado: [35, 35, 25, 5],
                         agresivo: [20, 35, 35, 10]
                     };
-                    const data = distMap[this.investmentProfile];
                     const ctx = houseEl.getContext('2d');
-
                     this.charts.house = new Chart(ctx, {
                         type: 'doughnut',
                         data: {
                             labels: ['Paredes', 'Habitaciones', 'Terraza', 'Piscina'],
                             datasets: [{
-                                data: data,
+                                data: distMap[this.investmentProfile],
                                 backgroundColor: ['#3a86ff', '#00f5d4', '#ffb703', '#8338ec'],
                                 borderColor: '#06080d',
                                 borderWidth: 3
@@ -1397,12 +1368,7 @@
                         options: {
                             responsive: true,
                             maintainAspectRatio: false,
-                            plugins: {
-                                legend: {
-                                    position: 'bottom',
-                                    labels: { color: '#94a3b8', font: { family: 'Space Grotesk' } }
-                                }
-                            },
+                            plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8' } } },
                             cutout: '70%'
                         }
                     });
@@ -1419,7 +1385,6 @@
                     case 'palancas': app.innerHTML = this.renderPalancas(); break;
                     default: app.innerHTML = this.renderDashboard();
                 }
-                // Initialize charts once DOM is injected
                 this.initCharts();
             }
         }
